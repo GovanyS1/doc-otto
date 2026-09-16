@@ -1,0 +1,44 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check changed files for whitespace errors
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            git diff --check "${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}"
+          else
+            git diff-tree --check --no-commit-id -r "${{ github.sha }}"
+          fi
+
+      - name: Check required project context
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f README.md
+          test -f AGENTS.md
+          test -f .ai/PRODUCT.md
+          test -f .ai/ARCHITECTURE.md
+          test -f .ai/CURRENT.md

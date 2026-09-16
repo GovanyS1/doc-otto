@@ -51,6 +51,10 @@ git diff
 
 Then commit/push only when explicitly requested.
 
+Delivery changes should normally go through a pull request targeting `main`.
+GitHub runs the repository validation workflow on every pull request, and `main`
+is protected so the required `validate` check must pass before merge.
+
 To abandon the active task intentionally:
 
 ```bash
