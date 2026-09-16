@@ -1,0 +1,7 @@
+[[checks]]
+name = "Git whitespace"
+command = "git diff --check"
+
+[[checks]]
+name = "Required project context"
+command = "test -f README.md && test -f AGENTS.md && test -f .ai/PRODUCT.md && test -f .ai/ARCHITECTURE.md && test -f .ai/CURRENT.md"
