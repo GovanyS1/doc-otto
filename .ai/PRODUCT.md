@@ -14,10 +14,28 @@ Connect to scanner -> scan vehicle -> see fault codes.
 - Connect to a compatible OBD scanner over Wi-Fi.
 - Read vehicle diagnostic trouble codes (fault codes).
 - Present the detected codes clearly in the app.
+- Let users open relevant online documents for a detected fault code.
+- Let users generate and share a diagnostic fault-code report by email.
 
 ## Initial User Goal
 
 A user with a compatible Wi-Fi OBD scanner should be able to connect their iPhone to the scanner, request the vehicle's stored diagnostic trouble codes, and see the returned codes without needing separate diagnostic software.
+
+After a scan, the user should also be able to open relevant online documentation for a fault code and share the scan results as a diagnostic report, including by email.
+
+## Diagnostic Documents
+
+- Each detected fault code may include links to relevant online documentation.
+- Documentation should be matched to the code and, when possible, the applicable vehicle.
+- Prefer legitimate public, manufacturer, or licensed sources rather than redistributing copyrighted repair manuals without permission.
+- Keep document metadata and links separate from the core fault-code representation so sources can be updated independently of the iOS app.
+
+## Diagnostic Report Sharing
+
+- Users should be able to generate a clear fault-code report after a scan.
+- The report should support sharing through the normal iOS share flow, including email.
+- The report may include vehicle information, scan date and time, detected codes, human-readable descriptions, code status, and related document links when available.
+- Sharing should use the user's normal iOS sharing or mail experience rather than requiring Doc Otto to store email credentials.
 
 ## Future Direction
 
