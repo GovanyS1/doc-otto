@@ -1,6 +1,6 @@
 # Architecture
 
-Doc Otto is an iOS vehicle-diagnostics application. Implementation has not started, so most technical choices remain intentionally undecided. The product roadmap includes both Wi-Fi and BLE scanner transports, although the first supported adapter and transport remain to be selected.
+Doc Otto is an iOS vehicle-diagnostics application. Mobile implementation has not started, so most technical choices remain intentionally undecided. The product roadmap includes both Wi-Fi and BLE scanner transports, although the first supported adapter and transport remain to be selected.
 
 ## Current Direction
 
@@ -27,6 +27,18 @@ Keep scanner communication, transport, code parsing, diagnostic content, persist
 - Optional NHTSA and Supabase integrations behind explicit service boundaries.
 
 No specific OBD adapter, command set, transport library, persistence layer, or distributable generic-DTC dataset has been selected yet.
+
+## Local Windows Feasibility Experiment
+
+`DocOtto/Prototypes/WindowsMhd` is a separate Python 3.10+ experiment for the MHD Universal adapter and test vehicle. It is not the mobile implementation or a change to the generic diagnostic product promise.
+
+- `reader.py` separates local interface enumeration, UDP ENET discovery, framed TCP HSFZ transport, UDS read requests, parsing, and a structured report.
+- `doc_otto.py` supplies a Tk desktop window and CLI. Network work runs outside the UI thread.
+- The only diagnostic requests allowed are VIN `22 F1 90` and pending/confirmed DTCs `19 02 0C`, initially addressed from tester `F4` to DME `12` on TCP 6801. These assumptions require hardware validation.
+- No arbitrary commands, clearing, session changes, resets, coding, flashing, or security access are exposed.
+- Failure retains `faults: null`; only a valid successful response may produce an empty list. Gateway acknowledgements alone do not count as code reads.
+- Reports and raw frames are saved locally only on user action (or an explicit CLI output path). There are no online dependencies, proprietary diagnostic databases, inferred definitions, or automatic uploads.
+- Windows UI startup and actual adapter/vehicle behavior remain to be tested. The simulated tests establish software behavior only.
 
 ## Engineering Principles
 

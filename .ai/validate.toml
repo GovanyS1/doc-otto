@@ -5,3 +5,7 @@ command = "git diff --check"
 [[checks]]
 name = "Required project context"
 command = "test -f README.md && test -f AGENTS.md && test -f .ai/PRODUCT.md && test -f .ai/ARCHITECTURE.md && test -f .ai/CURRENT.md"
+
+[[checks]]
+name = "Windows MHD prototype"
+command = "cd DocOtto/Prototypes/WindowsMhd && python3 -m unittest discover -s tests -v"

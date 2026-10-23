@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+# Scan reports can contain the VIN and local network addresses.
+*.json
+*.log
+*.zip

@@ -42,3 +42,7 @@ jobs:
           test -f .ai/PRODUCT.md
           test -f .ai/ARCHITECTURE.md
           test -f .ai/CURRENT.md
+
+      - name: Test Windows MHD prototype
+        working-directory: DocOtto/Prototypes/WindowsMhd
+        run: python3 -m unittest discover -s tests -v
