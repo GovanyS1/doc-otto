@@ -1,0 +1,24 @@
+plugins {
+    id 'java-library'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 8
+    options.compilerArgs += ['-Xlint:all', '-Werror']
+}
+
+tasks.register('verifyDiagnostics', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.docotto.diagnostics.DiagnosticsTests'
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('verifyDiagnostics')
+}
