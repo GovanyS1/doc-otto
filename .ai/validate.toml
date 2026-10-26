@@ -9,3 +9,11 @@ command = "test -f README.md && test -f AGENTS.md && test -f .ai/PRODUCT.md && t
 [[checks]]
 name = "Windows MHD prototype"
 command = "cd DocOtto/Prototypes/WindowsMhd && python3 -m unittest discover -s tests -v"
+
+[[checks]]
+name = "Swift diagnostic core"
+command = "bash DocOtto/App/Diagnostics/test.sh"
+
+[[checks]]
+name = "Android diagnostic core"
+command = "bash DocOtto/App/AndroidDiagnostics/test.sh"
