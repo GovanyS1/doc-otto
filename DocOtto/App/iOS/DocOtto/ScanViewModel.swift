@@ -47,7 +47,6 @@ enum BLEUARTPreset: String, CaseIterable, Identifiable {
         }
     }
 }
-
 /// Foreground UI state. Every run owns a fresh transport and an immutable endpoint.
 @MainActor
 final class ScanViewModel: ObservableObject {
@@ -606,4 +605,3 @@ private final class DemoOBDChannel: AdapterCommandChannel {
         guard !closed else { throw DiagnosticError.disconnected }
     }
 }
-

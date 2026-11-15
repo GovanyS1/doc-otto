@@ -316,7 +316,6 @@ final class ScanViewModelTests: XCTestCase {
         return try JSONDecoder().decode(WireEvent.self, from: data)
     }
 }
-
 @MainActor
 private final class GenericTestChannel: AdapterCommandChannel {
     var commands: [String] = []
@@ -380,4 +379,3 @@ private final class GatedTransport: TestTransport {
         continuation = nil
     }
 }
-
