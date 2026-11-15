@@ -6,22 +6,28 @@ Git is authoritative for code/history. `.ai/` stores durable product intent, arc
 
 ## Normal workflow
 
-Run from the repository root:
+Start in the repository root and review the current branch and working tree:
 
 ```bash
-git pull --ff-only
 git status
+```
+
+Coordinate any branch update with other contributors before pulling, and preserve existing local work. The optional `ai` workflow CLI can maintain task packets when installed:
+
+```bash
 ai status .
 ai start "describe the task clearly"
 ```
 
-`ai start` creates or resumes `.ai/ACTIVE`, creates a work packet under `.ai/work/`, and recommends one of three routes:
+If `ai` is unavailable, use `README.md` and the `.ai/` documents directly and record material decisions or handoffs in `.ai/work/` or `.ai/decisions/`. Do not install tools or change global configuration solely to follow this guide.
+
+When installed, `ai start` creates or resumes `.ai/ACTIVE`, creates a work packet under `.ai/work/`, and recommends a work route:
 
 - `none` - deterministic tooling is enough.
-- `sol` - normal hosted engineering/product work. Use GPT-5.6 Sol with direct repository access.
-- `astra` - difficult or high-risk work such as security, privacy, privilege boundaries, concurrency, cryptography, regulated data, or critical correctness. Treat this as the team's highest-reasoning route.
+- `sol` - hosted engineering/product work.
+- `astra` - work requiring additional reasoning, review, or care, such as security, privacy, concurrency, or critical correctness.
 
-For hosted routes, work directly in the repository with ChatGPT. Chat On Steroids is the recommended bridge. A concise prompt is enough:
+These are optional workflow suggestions, not required tools or model choices. Developers may use their own approved editor and assistant. For an assistant with repository access, a concise task prompt is sufficient:
 
 ```text
 Work on the active task. Follow AGENTS.md.
@@ -29,22 +35,23 @@ Work on the active task. Follow AGENTS.md.
 
 Keep `.ai/CURRENT.md`, `.ai/ARCHITECTURE.md`, `.ai/decisions/`, and the active work packet current when the work materially changes them.
 
-Validate before declaring work complete:
+Validate before declaring work complete. If the `ai` CLI is installed, run:
 
 ```bash
 ai validate .
 ```
 
-Use `ai finish` when you only want deterministic validation and the task should remain active:
+Otherwise, inspect `.ai/validate.toml` and run the applicable checks with the required local SDKs or toolchains. Platform-dependent tests can be run on a suitable machine or in CI; document checks that could not be run.
+
+If using the `ai` CLI, `ai finish` runs deterministic validation while keeping a task active:
 
 ```bash
 ai finish .
 ```
 
-When the task is actually complete:
+When a task is complete, optionally close it through `ai finish . --complete` if the CLI is installed. In all environments, review the working tree:
 
 ```bash
-ai finish . --complete
 git status
 git diff
 ```
@@ -55,15 +62,15 @@ Delivery changes should normally go through a pull request targeting `main`.
 GitHub runs the repository validation workflow on every pull request, and `main`
 is protected so the required `validate` check must pass before merge.
 
-To abandon the active task intentionally:
+When using the `ai` CLI, abandon an active task intentionally with:
 
 ```bash
 ai stop --reason "Reason for abandoning the work"
 ```
 
-## Fallback-only transport
+## Optional fallback transport
 
-Direct repository access is the normal workflow. Use these only when that is unavailable:
+When working without direct repository access, the `ai` CLI also supports these optional transport commands:
 
 ```bash
 ai pack . --task "task"

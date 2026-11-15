@@ -1,6 +1,8 @@
 # Current Work
 
-Doc Otto now has initial UI-independent diagnostic logic in Swift at `DocOtto/App/Diagnostics` and Android/Java at `DocOtto/App/AndroidDiagnostics`, assuming a configurable BLE/ELM327 CAN adapter. No actual BLE adapter/GATT profile or test-vehicle CAN route has been validated. The Android bridge compiles against API 35; Apple SDK compilation, full Android packaging, and physical phone tests remain pending. The separate Windows/MHD experiment has user-reported successful VIN and raw engine-code reads on the test vehicle; broader compatibility remains unverified.
+Doc Otto has a runnable native SwiftUI iOS prototype at `DocOtto/App/iOS/DocOtto.xcodeproj`, connecting through MHD Universal Wi-Fi in ENET mode. It reuses the Swift diagnostic package with a Network.framework/HSFZ transport. Earlier validation passed simulator and unsigned device SDK builds, 45 shared-core tests, 9 iOS app-state/report tests, and 18 Windows tests. A prior signed development build was installed on a test iPhone, but first launch was blocked by developer-certificate trust settings. Each developer must configure their own signing team and device trust. Physical iPhone/MHD/test-vehicle communication remains unverified. Prototype work may still be uncommitted in local checkouts.
+
+The original BLE/ELM327 Swift and Android/Java libraries remain separate transport experiments without a verified BLE adapter/GATT profile or vehicle CAN route. The Android bridge was previously compiled against API 35; full Android packaging and physical-phone tests remain pending. The Windows/MHD experiment has user-reported successful VIN and raw engine-code reads on the test vehicle.
 
 ## Completed
 
@@ -21,10 +23,22 @@ Doc Otto now has initial UI-independent diagnostic logic in Swift at `DocOtto/Ap
 - Kept the native packages free of UI and app-shell code as requested. The user subsequently authorized committing, pushing, and opening a PR for the completed diagnostic logic.
 - Added a Java Android counterpart with the same UDS requests, ELM/CAN transport, ISO-TP assembly, fault/VIN parsing, and a native Android BLE byte stream.
 - Passed 35 Android JVM tests and compiled the BLE Java source against Google's AOSP API 35 reference jar with warnings treated as errors. These are not real Android/radio/vehicle tests.
+- Added a native SwiftUI iOS app with connection setup, VIN/raw engine-code results, cancellation, explicit demo, log and local JSON report sharing.
+- Added ENET/HSFZ framing and a native TCP transport with explicit private/link-local IPv4 configuration, TCP 6801, tester F4, DME 12, fixed deadlines and physical iOS Wi-Fi routing.
+- Reused the existing allowlisted VIN and pending/confirmed engine reads; no generic P-code translations or code-clearing operations were added.
+- Added 14 shared-core ENET tests including a complete native TCP loopback scan; all 45 Swift tests passed in an earlier macOS validation run.
+- Added 9 iOS model tests covering empty versus unknown outcomes, frozen endpoints, cancellation, stale callbacks, mode changes and report data; all passed in the iPhone simulator.
+- Built for both the simulator and physical iOS SDK without provisioning changes, and visually inspected the simulator interface.
+- Documented the verified manual gateway-IP requirement and physical-device setup in `DocOtto/App/iOS/README.md`.
+- Completed an earlier development-signed build and test-device installation. Each developer must select their own signing team and test device in Xcode; first-launch trust and physical adapter communication still need verification.
 
 ## Next
 
-The next native milestone is selecting the BLE adapter and its documented GATT behavior, verifying the physical engine-ECU CAN route/bit rate, compiling with an Apple SDK, validating Android Gradle/AAR packaging and host-app permissions, and testing the read-only flow on physical phones. Do not treat fixture addresses as working BMW configuration. The user authorized committing and pushing the prepared native work and opening a PR titled `diagnostics logic for IOS and android` with the supplied three-bullet description. No tracking issue or merge is requested.
+For physical iOS validation, select a development team and test device in Xcode, install and launch the app, then complete any developer trust or Developer Mode steps required on that device. Join the MHD ENET Wi-Fi network, use a verified diagnostic host from a successful capture, grant Local Network access, and compare engine pending/confirmed results with MHD. Save the JSON report and verify reconnection. No successful physical iOS adapter scan has yet been documented.
+
+Development tasks must follow their own delivery instructions; do not infer permission to commit, push, open issues, or merge from old handoffs. The `ai` workflow CLI is optional; when unavailable, run checks from `.ai/validate.toml` directly. Android tests need JDK 17 or the documented Docker fallback, while bridge compilation additionally requires an API 35 SDK jar. Record missing-tool limitations for the current environment rather than treating them as project-wide blockers.
+
+Future BLE work still needs a documented adapter/GATT profile and verified physical CAN route. Android packaging and phone permissions remain pending. Do not treat fixture endpoints or CAN identifiers as working vehicle configuration.
 
 Windows experiment follow-up:
 
@@ -48,9 +62,14 @@ Before production mobile integration:
 ## Needs Review
 
 - Supported OBD scanner/protocol scope.
-- Host-app integration and compilation of the Core Bluetooth transport with an Apple SDK.
+- Physical iPhone launch with each developer's signing configuration, MHD communication, verified gateway IP, and saved-report comparison.
+- Runtime Core Bluetooth behavior; Apple SDK compilation succeeds in Swift 5 mode with pre-existing delegate-isolation warnings that require attention before Swift 6 language mode.
 - Android host-app integration, Gradle/AAR packaging, manifest/runtime permissions, and physical GATT callback behavior.
 - Saved-report comparison and repeatability beyond the user-reported Windows VIN/code reads; the working MHD adapter endpoint and firmware/mode still need recording.
-- Mobile implementation milestone; a BMW-specific raw read does not establish generic OBD-II or cross-brand support.
+- The native Wi-Fi prototype is a raw-engine experiment; it does not establish generic OBD-II or cross-brand support.
 - Roadmap release sequencing.
 - Diagnostic-content sourcing, licensing, and review.
+
+## 2026-10-30 local iOS generic-scanner work
+
+Implemented a new generic SAE J1979 / ELM327 read-only scan layer (automatic adapter protocol selection, probe, optional VIN, stored/pending/permanent codes) and separate persisted Wi-Fi TCP / discovered BLE GATT choices in the native iOS project. Kept BMW ENET as the separate advanced Wi-Fi selection. UI displays standard DTCs with status categories, with appropriate Local Network and Bluetooth permission descriptions. Added simulator-safe demo and generic protocol tests. Physical scanner/vehicle validation remains pending; no commit or push requested.
