@@ -1,8 +1,26 @@
 # Doc Otto diagnostic logic
 
-This Swift package contains the initial iOS diagnostic logic. It has no screens or app executable. It targets iOS 16+ and macOS 13+; the protocol core and simulated transports also run on Linux.
+This Swift package contains reusable iOS diagnostic logic for ENET Wi-Fi and configurable BLE/ELM327 CAN connections. It has no screens or app executable. It targets iOS 16+ and macOS 13+; the protocol core and simulated transports also run on Linux. The runnable SwiftUI MHD prototype is in [../iOS](../iOS/README.md).
 
-## Assumptions and current limits
+## ENET Wi-Fi integration
+
+The MHD prototype uses `ENETConfiguration(host:)` and `ENETTransport(configuration:onEvent:)` with the existing `DMEReader`. Supply a verified local numeric IPv4 endpoint manually, or use `ENETDiscovery().discover()` to obtain the source IP from a validated HSFZ identification response on Wi-Fi. No address is guessed and no subnet is scanned. Discovery uses UDP 6811; reads use TCP 6801, tester F4, and engine ECU 12, following the Windows experiment. This is the MHD Universal ENET path, not its CAN mode or an ELM327 interface.
+
+`NetworkTCPByteStream` uses Network.framework and requires Wi-Fi on physical iOS. The host app must include `NSLocalNetworkUsageDescription`. Manual Wi-Fi joining and unicast TCP do not require broadcast discovery or a multicast entitlement.
+
+Automatic discovery sends only the HSFZ gateway-identification probe `00 00 00 00 00 11` on the Wi-Fi network, validates complete replies with a `DIAGADR` marker, and returns the responding IPv4 endpoints (with an optional VIN). A caller should reject ambiguous multiple-gateway results rather than arbitrarily choose one. **Physical iOS discovery additionally requires Apple's restricted `com.apple.developer.networking.multicast` entitlement** for UDP broadcast. Without it, the existing manually entered TCP endpoint remains usable. Do not add an unapproved entitlement to an actively signed app target, because device provisioning may fail.
+
+```swift
+let configuration = try ENETConfiguration(host: verifiedGatewayIPv4)
+let transport = ENETTransport(configuration: configuration, onEvent: { event in
+    // Main-actor callback: event.time, event.direction, event.text.
+})
+let result = try await DMEReader { transport }.scan(targetLabel: "test vehicle")
+```
+
+Use these APIs from the main actor. The reader closes each session on completion or failure. Connections and requests have fixed deadlines, including response-pending handling; framing, write, cancellation, and disconnect failures leave code status unknown. Gateway acknowledgements alone do not count as ECU results. The latest 128 trace events are retained, with wire-frame text limited to 512 bytes per event and marked on truncation. Physical MHD/iPhone compatibility remains unverified.
+
+## BLE assumptions and current limits
 
 - The connection is **Bluetooth Low Energy**, using a documented UART-style GATT service carrying ELM327-compatible ASCII commands.
 - The adapter supports classical CAN, normal ISO-TP addressing, raw frame output, receive filters, and configurable automatic flow control.
@@ -21,6 +39,9 @@ This Swift package contains the initial iOS diagnostic logic. It has no screens 
 | ELM327Transport.swift | Configure the adapter and physical CAN route, send the two supported single-frame read requests, and validate reply addresses |
 | ISOTP.swift | Validate frame ordering/length and assemble multiline CAN replies |
 | Diagnostics.swift | Validate VINs, extract three-byte raw fault IDs and status bits, and orchestrate a scan |
+| HSFZ.swift | Validate a local endpoint and assemble bounded, fragmented/coalesced ENET frames |
+| NetworkTCPByteStream.swift | Open a bounded native TCP session with foreground Wi-Fi behavior on iOS |
+| ENETTransport.swift | Execute the two allowlisted engine reads, match replies and retain a bounded trace |
 
 DMEReader creates a fresh transport for each scan, opens it, reads the VIN, reads fault records, and closes it. A complete VIN rejection permits the fault read to continue. A VIN timeout, incomplete message, or malformed VIN stops the scan because the connection is no longer trustworthy.
 
@@ -30,7 +51,7 @@ FaultRead.faults can be an empty list only after a valid positive ECU response. 
 
 A response-pending reply can precede a final response within one bounded adapter transaction. Pending without a final response is inconclusive; the package does not resend the request or extend the deadline indefinitely.
 
-## Integrating with a future iOS app
+## Integrating BLE with an iOS app
 
 Open Package.swift in Xcode or add this directory as a local Swift package. Import DocOttoDiagnostics from the app target. The containing app must include an NSBluetoothAlwaysUsageDescription string explaining its adapter connection; the library does not supply an app Info.plist.
 
@@ -89,7 +110,7 @@ bash test.sh
 
 The runner uses an installed Swift toolchain, or an already-downloaded official swift:6.0.3-jammy Docker image. It does not install packages, start a privileged container, or download an image automatically. If needed on Linux, explicitly run docker pull swift:6.0.3-jammy first. Docker tests have networking disabled and run as the current user.
 
-Tests use scripted byte streams and ECU replies, including an end-to-end simulated BLE/ELM/ISO-TP/UDS scan. These are not real iPhone, radio, adapter, or vehicle tests. Linux does not compile the Core Bluetooth implementation guarded by canImport(CoreBluetooth); an Apple SDK build and device testing remain required.
+Tests use scripted byte streams and ECU replies, including an end-to-end simulated BLE/ELM/ISO-TP/UDS scan, ENET sessions, and a real Network.framework TCP loopback simulated gateway on macOS. These are not real iPhone, radio, adapter, or vehicle tests. Linux excludes the Core Bluetooth and Network.framework implementations. Apple SDK compilation is now exercised by the iOS app; physical-device testing remains required.
 
 ## Protocol references
 

@@ -1,0 +1,2 @@
+# Store the Windows Gradle launcher with normalized LF in Git while checking it out with CRLF.
+DocOtto/App/AndroidDiagnostics/gradlew.bat text eol=crlf

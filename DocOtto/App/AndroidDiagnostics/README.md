@@ -11,7 +11,7 @@ This is library source, not an APK. It includes no screens, activity, launcher, 
 | core | Dependency-free Java diagnostic logic, executable and testable on a desktop JVM |
 | ble | Android Bluetooth GATT byte stream using a caller-selected BluetoothDevice and documented adapter profile |
 
-The Android module requires Android 8.0/API 26+. Gradle configuration uses compileSdk 35, Android Gradle Plugin 8.7.3, Gradle 8.9, and JDK 17. Source and bytecode are Java 8 compatible. No Gradle wrapper is bundled; open the project with a matching Android Studio/Gradle installation or generate the standard wrapper there.
+The Android module requires Android 8.0/API 26+. Gradle configuration uses compileSdk 35, Android Gradle Plugin 8.7.3, Gradle 8.9, and JDK 17. Source and bytecode are Java 8 compatible. Open the project with a compatible Android Studio/Gradle installation. If a Gradle wrapper is present, use it; otherwise install Gradle 8.9 or generate a wrapper using a compatible local Gradle installation.
 
 The standalone tests need JDK 17 or a previously downloaded official eclipse-temurin:17-jdk-jammy Docker image. They need no Maven dependencies, Android device, or network connection.
 
@@ -98,13 +98,15 @@ To compile the Android bridge against an installed API 35 jar as well:
 DOC_OTTO_ANDROID_JAR=/absolute/path/to/Android/Sdk/platforms/android-35/android.jar bash test.sh
 ```
 
-The runner also detects API 35 under ANDROID_HOME/ANDROID_SDK_ROOT. In this local checkout, an ignored AOSP API 35 reference jar is available to repeat the source compilation. Its Git blob is 1c91b02611ddcf9aba606e01e28b0cdab9c57af1. The jar is an API reference, not an Android runtime or complete SDK.
+The runner also detects API 35 under `ANDROID_HOME` or `ANDROID_SDK_ROOT`. Each developer should install the Android SDK Platform 35 and point the runner to its `android.jar` when testing the BLE bridge. An API reference jar alone is not an Android runtime or complete SDK.
 
 With Gradle 8.9, JDK 17, and a configured Android SDK, the intended packaging/check commands are:
 
 ```bash
 gradle :core:check :ble:assembleDebug
 ```
+
+If the checkout includes a Gradle wrapper, use `./gradlew :core:check :ble:assembleDebug` on macOS/Linux or `gradlew.bat :core:check :ble:assembleDebug` on Windows instead.
 
 Completed validation: 35 JVM core tests and compilation of Android BLE Java sources against the API 35 reference jar. This does not test real Android callbacks, radio behavior, adapter/vehicle compatibility, runtime permissions, manifest merging, AAR packaging, or installation. Those remain separate checks.
 

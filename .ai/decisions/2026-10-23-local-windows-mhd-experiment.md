@@ -5,7 +5,7 @@ Status: Accepted for experiment; hardware compatibility unverified
 
 ## Context
 
-The user wants to test whether a PC can receive fault codes through an MHD Universal Wi-Fi adapter before committing to mobile implementation. The first target is the test vehicle. Development began locally; the user subsequently authorized committing and pushing the prepared files and opening a pull request titled `Initial testing`.
+The project used an MHD Universal Wi-Fi adapter to investigate whether a Windows PC can read vehicle fault codes before mobile implementation. Initial work targeted a test vehicle, and the prototype was later delivered through an authorized pull request titled `Initial testing`. Historical delivery decisions do not authorize future pushes.
 
 ## Decision
 
